@@ -4,12 +4,17 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,15 +23,25 @@ import androidx.recyclerview.widget.RecyclerView
 private const val VIEW_TYPE_NORMAL = 0
 private const val VIEW_TYPE_POLICE = 1
 private const val REQUEST_CRIME = 1
+private const val SAVED_SUBTITLE_VISIBLE = "subtitle"
+private const val MAX_CRIMES = 10
 
 class CrimeListFragment : Fragment() {
 
     private lateinit var crimeRecyclerView: RecyclerView
+    private lateinit var emptyView: View
+    private lateinit var addCrimeButton: Button
     private var adapter: CrimeAdapter? = null
     private var lastClickedPosition: Int = -1
+    private var isSubtitleVisible: Boolean = false
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -39,8 +54,16 @@ class CrimeListFragment : Fragment() {
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view)
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
         
-        updateUI()
+        emptyView = view.findViewById(R.id.empty_view)
+        addCrimeButton = view.findViewById(R.id.add_crime_button)
+        addCrimeButton.setOnClickListener {
+            createNewCrime()
+        }
 
+        if (savedInstanceState != null) {
+            isSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE)
+        }
+        
         return view
     }
 
@@ -55,7 +78,55 @@ class CrimeListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        updateUI()
+        crimeListViewModel.loadCrimes(requireContext())
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(SAVED_SUBTITLE_VISIBLE, isSubtitleVisible)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_crime_list, menu)
+
+        val subtitleItem = menu.findItem(R.id.show_subtitle)
+        if (isSubtitleVisible) {
+            subtitleItem.setTitle(R.string.hide_subtitle)
+        } else {
+            subtitleItem.setTitle(R.string.show_subtitle)
+        }
+
+        val newCrimeItem = menu.findItem(R.id.new_crime)
+        val crimeCount = crimeListViewModel.crimes.value?.size ?: 0
+        newCrimeItem.isVisible = crimeCount < MAX_CRIMES
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.new_crime -> {
+                createNewCrime()
+                true
+            }
+            R.id.show_subtitle -> {
+                isSubtitleVisible = !isSubtitleVisible
+                activity?.invalidateOptionsMenu()
+                updateSubtitle()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun createNewCrime() {
+        val crimeCount = crimeListViewModel.crimes.value?.size ?: 0
+        if (crimeCount >= MAX_CRIMES) {
+            return
+        }
+        val crime = Crime()
+        CrimeLab.get(requireContext()).addCrime(crime)
+        val intent = CrimePagerActivity.newIntent(requireContext(), crime.id)
+        startActivity(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -68,21 +139,37 @@ class CrimeListFragment : Fragment() {
         }
     }
 
-    private fun updateUI(crimes: List<Crime>? = null) {
-        val crimeList = crimes ?: CrimeLab.get(requireContext()).getCrimes()
-        
+    private fun updateSubtitle() {
+        val crimeCount = crimeListViewModel.crimes.value?.size ?: 0
+        var subtitle: String? = resources.getQuantityString(R.plurals.subtitle_plural, crimeCount, crimeCount)
+
+        if (!isSubtitleVisible) {
+            subtitle = null
+        }
+
+        val activity = activity as AppCompatActivity
+        activity.supportActionBar?.subtitle = subtitle
+    }
+
+    private fun updateUI(crimes: List<Crime>) {
+        if (crimes.isEmpty()) {
+            crimeRecyclerView.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
+        } else {
+            crimeRecyclerView.visibility = View.VISIBLE
+            emptyView.visibility = View.GONE
+        }
+
         if (adapter == null) {
-            adapter = CrimeAdapter(crimeList)
+            adapter = CrimeAdapter(crimes)
             crimeRecyclerView.adapter = adapter
         } else {
-            adapter?.crimes = crimeList
-            if (lastClickedPosition != -1) {
-                adapter?.notifyItemChanged(lastClickedPosition)
-                lastClickedPosition = -1
-            } else {
-                adapter?.notifyDataSetChanged()
-            }
+            adapter?.crimes = crimes
+            adapter?.notifyDataSetChanged()
         }
+
+        activity?.invalidateOptionsMenu()
+        updateSubtitle()
     }
 
     private open inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
@@ -100,6 +187,14 @@ class CrimeListFragment : Fragment() {
             titleTextView.text = this.crime.title
             dateTextView.text = this.crime.date.toString()
             solvedImageView.visibility = if (crime.isSolved) View.VISIBLE else View.GONE
+
+            val color = if (crime.isSolved) {
+                ContextCompat.getColor(itemView.context, R.color.green)
+            } else {
+                ContextCompat.getColor(itemView.context, R.color.black)
+            }
+            titleTextView.setTextColor(color)
+            dateTextView.setTextColor(color)
         }
 
         override fun onClick(v: View) {
