@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.bignerdranch.android.criminalintent.database.CrimeDbSchema.CrimeTable
 
-private const val VERSION = 1
+private const val VERSION = 2
 private const val DATABASE_NAME = "crimeBase.db"
 
 class CrimeBaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, VERSION) {
@@ -17,11 +17,15 @@ class CrimeBaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
                 CrimeTable.Cols.TITLE + ", " +
                 CrimeTable.Cols.DATE + ", " +
                 CrimeTable.Cols.SOLVED + ", " +
-                CrimeTable.Cols.SUSPECT +
+                CrimeTable.Cols.SUSPECT + ", " +
+                CrimeTable.Cols.REQUIRES_POLICE +
                 ")"
         )
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (oldVersion < 2) {
+            db.execSQL("alter table ${CrimeTable.NAME} add column ${CrimeTable.Cols.REQUIRES_POLICE} integer default 0")
+        }
     }
 }

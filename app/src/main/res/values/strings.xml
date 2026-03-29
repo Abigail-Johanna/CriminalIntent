@@ -4,6 +4,7 @@
     <string name="crime_title_label">Title</string>
     <string name="crime_details_label">Details</string>
     <string name="crime_solved_label">Solved</string>
+    <string name="crime_requires_police_label">Requires Police</string>
     <string name="date_picker_title">Date of crime:</string>
     <string name="time_picker_title">Time of crime:</string>
     <string name="new_crime">New Crime</string>
@@ -26,4 +27,8 @@
     <string name="crime_report_subject">CriminalIntent Crime Report</string>
     <string name="send_report">Send crime report via</string>
     <string name="crime_call_text">Call Suspect</string>
+    <string name="please_select_crime">Welcome! Please select a crime to see the details.</string>
+    <string name="change_language">Change Language</string>
+    <string name="english">English</string>
+    <string name="spanish">Español</string>
 </resources>

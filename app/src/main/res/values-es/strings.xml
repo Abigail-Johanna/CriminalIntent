@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">CriminalIntent</string>
+    <string name="crime_title_hint">Ingrese un título para el crimen.</string>
+    <string name="crime_title_label">Título</string>
+    <string name="crime_details_label">Detalles</string>
+    <string name="crime_solved_label">Resuelto</string>
+    <string name="crime_requires_police_label">Requiere Policía</string>
+    <string name="date_picker_title">Fecha del crimen:</string>
+    <string name="time_picker_title">Hora del crimen:</string>
+    <string name="new_crime">Nuevo Crimen</string>
+    <string name="show_subtitle">Mostrar Subtítulo</string>
+    <string name="hide_subtitle">Ocultar Subtítulo</string>
+    <string name="subtitle_format">%1$d crímenes</string>
+    <string name="delete_crime">Eliminar Crimen</string>
+    <string name="empty_view_text">No hay crímenes.</string>
+    <plurals name="subtitle_plural">
+        <item quantity="one">%1$d crimen</item>
+        <item quantity="other">%1$d crímenes</item>
+    </plurals>
+    <string name="crime_suspect_text">Elegir Sospechoso</string>
+    <string name="crime_report_text">Enviar Informe de Crimen</string>
+    <string name="crime_report">¡%1$s! El crimen fue descubierto el %2$s. %3$s, y %4$s</string>
+    <string name="crime_report_solved">El caso está resuelto</string>
+    <string name="crime_report_unsolved">El caso no está resuelto</string>
+    <string name="crime_report_no_suspect">no hay sospechoso.</string>
+    <string name="crime_report_suspect">el sospechoso es %s.</string>
+    <string name="crime_report_subject">Informe de Crimen de CriminalIntent</string>
+    <string name="send_report">Enviar informe de crimen a través de</string>
+    <string name="crime_call_text">Llamar al Sospechoso</string>
+    <string name="please_select_crime">¡Bienvenido! Por favor seleccione un crimen para ver los detalles.</string>
+    <string name="change_language">Cambiar Idioma</string>
+    <string name="english">Inglés</string>
+    <string name="spanish">Español</string>
+</resources>

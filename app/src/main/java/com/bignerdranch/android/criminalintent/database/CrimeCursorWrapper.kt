@@ -15,12 +15,14 @@ class CrimeCursorWrapper(cursor: Cursor) : CursorWrapper(cursor) {
         val date = getLong(getColumnIndex(CrimeTable.Cols.DATE))
         val isSolved = getInt(getColumnIndex(CrimeTable.Cols.SOLVED))
         val suspect = getString(getColumnIndex(CrimeTable.Cols.SUSPECT))
+        val requiresPolice = getInt(getColumnIndex(CrimeTable.Cols.REQUIRES_POLICE))
 
         return Crime(UUID.fromString(uuidString)).apply {
             this.title = title
             this.date = Date(date)
             this.isSolved = isSolved != 0
             this.suspect = suspect
+            this.requiresPolice = requiresPolice != 0
         }
     }
 }

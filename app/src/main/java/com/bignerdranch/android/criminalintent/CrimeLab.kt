@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import com.bignerdranch.android.criminalintent.database.CrimeBaseHelper
 import com.bignerdranch.android.criminalintent.database.CrimeCursorWrapper
 import com.bignerdranch.android.criminalintent.database.CrimeDbSchema.CrimeTable
+import java.io.File
 import java.util.UUID
 
 class CrimeLab private constructor(context: Context) {
@@ -71,6 +72,11 @@ class CrimeLab private constructor(context: Context) {
         )
     }
 
+    fun getPhotoFile(crime: Crime): File {
+        val filesDir = mContext.filesDir
+        return File(filesDir, crime.photoFileName)
+    }
+
     private fun queryCrimes(whereClause: String?, whereArgs: Array<String>?): CrimeCursorWrapper {
         val cursor = mDatabase.query(
             CrimeTable.NAME,
@@ -100,6 +106,7 @@ class CrimeLab private constructor(context: Context) {
             values.put(CrimeTable.Cols.DATE, crime.date.time)
             values.put(CrimeTable.Cols.SOLVED, if (crime.isSolved) 1 else 0)
             values.put(CrimeTable.Cols.SUSPECT, crime.suspect)
+            values.put(CrimeTable.Cols.REQUIRES_POLICE, if (crime.requiresPolice) 1 else 0)
             return values
         }
     }

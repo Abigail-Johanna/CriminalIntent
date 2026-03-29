@@ -10,7 +10,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import java.util.UUID
 
-class CrimePagerActivity : AppCompatActivity() {
+class CrimePagerActivity : AppCompatActivity(), CrimeFragment.Callbacks {
 
     private lateinit var viewPager: ViewPager
     private lateinit var crimes: List<Crime>
@@ -66,6 +66,10 @@ class CrimePagerActivity : AppCompatActivity() {
                 break
             }
         }
+    }
+
+    override fun onCrimeUpdated(crime: Crime) {
+        // Optional: Implement if pager needs to react to crime updates
     }
 
     private fun updateButtons(position: Int) {
